@@ -277,6 +277,9 @@
         <button id="btn089" onclick="setPackage(0.89)" style="background: #aaa">
           Gói 0.89
         </button>
+        <button id="btn166" onclick="setPackage(1.66)" style="background: #aaa">
+          Gói 1.66
+        </button>
       </div>
 
       <button onclick="tinhTraGop()">Tính trả góp</button>
@@ -371,12 +374,21 @@
         24: 0.05548,
       };
 
+      const heSo166 = {
+        18: 0.07719,
+        21: 0.069355,
+        24: 0.063512,
+        36: 0.050251,
+      };
       function setPackage(p) {
         currentPackage = p;
+
         document.getElementById("btn099").style.background =
           p === 0.99 ? "#007bff" : "#aaa";
         document.getElementById("btn089").style.background =
           p === 0.89 ? "#007bff" : "#aaa";
+        document.getElementById("btn166").style.background =
+          p === 1.66 ? "#007bff" : "#aaa";
 
         if (document.getElementById("result").style.display === "block") {
           tinhTraGop();
@@ -393,7 +405,21 @@
         }
 
         const vay = giaXe - traTruoc;
-        const heSo = currentPackage === 0.99 ? heSo99 : heSo089;
+        let heSo;
+
+        switch (currentPackage) {
+          case 0.99:
+            heSo = heSo99;
+            break;
+          case 0.89:
+            heSo = heSo089;
+            break;
+          case 1.66:
+            heSo = heSo166;
+            break;
+          default:
+            heSo = heSo99;
+        }
 
         let html = `<b>Khoản vay:</b> ${formatNumber(vay)} VNĐ<br><br><ul>`;
 
