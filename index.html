@@ -156,6 +156,16 @@
         cursor: pointer;
       }
 
+      .switch-box {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .switch-box button {
+        flex: 1;
+      }
+
       .result {
         margin-top: 25px;
         padding: 20px;
@@ -181,6 +191,48 @@
 
       .month {
         color: #007bff;
+      }
+
+      .plan-item {
+        list-style: none;
+        margin-bottom: 12px;
+      }
+
+      .plan-box {
+        background: white;
+        border-radius: 14px;
+        padding: 16px 20px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e3eaf3;
+
+        width: 100%;
+      }
+
+      .plan-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 15px;
+      }
+
+      .plan-row .label {
+        color: #555;
+      }
+
+      .plan-row .value {
+        font-weight: 600;
+        color: #0d47a1;
+      }
+
+      .plan-row.total .value {
+        color: #e53935;
+        font-weight: 700;
+      }
+
+      .divider {
+        height: 1px;
+        background: #e0e0e0;
+        margin: 10px 0;
       }
     </style>
   </head>
@@ -208,7 +260,7 @@
 
     <!-- CONTENT -->
     <div class="container">
-      <h1>Tính Trả Góp Xe 0.99</h1>
+      <h1>Tính Trả Góp Xe</h1>
 
       <label>Giá xe (VNĐ)</label>
       <input type="text" id="giaXe" placeholder="Nhập giá xe" />
@@ -219,6 +271,14 @@
       <label>Trả trước (%)</label>
       <input type="number" id="traPercent" placeholder="Nhập %" />
 
+      <!-- SWITCH -->
+      <div class="switch-box">
+        <button id="btn099" onclick="setPackage(0.99)">Gói 0.99</button>
+        <button id="btn089" onclick="setPackage(0.89)" style="background: #aaa">
+          Gói 0.89
+        </button>
+      </div>
+
       <button onclick="tinhTraGop()">Tính trả góp</button>
 
       <div class="result" id="result" style="display: none"></div>
@@ -226,7 +286,7 @@
 
     <script>
       /* ===== LOGIN LOGIC ===== */
-      const ACCESS_KEY = "B41"; // 🔑 đổi key tại đây
+      const ACCESS_KEY = "B41";
 
       function login() {
         const key = document.getElementById("loginKey").value;
@@ -250,10 +310,12 @@
         }
       };
 
-      /* ===== TOOL LOGIC (GIỮ NGUYÊN) ===== */
+      /* ===== TOOL LOGIC (GIỮ NGUYÊN + BỔ SUNG) ===== */
       const giaXeInput = document.getElementById("giaXe");
       const traTienInput = document.getElementById("traTien");
       const traPercentInput = document.getElementById("traPercent");
+
+      let currentPackage = 0.99;
 
       function formatNumber(n) {
         return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -290,6 +352,37 @@
           traPercentInput.value = ((tien / giaXe) * 100).toFixed(2);
       }
 
+      const heSo99 = {
+        9: 0.1261792333,
+        12: 0.0982338,
+        15: 0.0814975,
+        18: 0.07036566666,
+        21: 0.06244,
+        24: 0.05651,
+        36: 0.042809,
+      };
+
+      const heSo089 = {
+        9: 0.12517,
+        12: 0.09723,
+        15: 0.08049,
+        18: 0.06936,
+        21: 0.06143,
+        24: 0.05548,
+      };
+
+      function setPackage(p) {
+        currentPackage = p;
+        document.getElementById("btn099").style.background =
+          p === 0.99 ? "#007bff" : "#aaa";
+        document.getElementById("btn089").style.background =
+          p === 0.89 ? "#007bff" : "#aaa";
+
+        if (document.getElementById("result").style.display === "block") {
+          tinhTraGop();
+        }
+      }
+
       function tinhTraGop() {
         const giaXe = parseNumber(giaXeInput.value);
         const traTruoc = parseNumber(traTienInput.value);
@@ -300,22 +393,36 @@
         }
 
         const vay = giaXe - traTruoc;
-        const heSo = {
-          12: 0.0982338,
-          15: 0.0814975,
-          18: 0.07036566666,
-          21: 0.06244,
-          24: 0.05651,
-          36: 0.042809
-        };
+        const heSo = currentPackage === 0.99 ? heSo99 : heSo089;
 
         let html = `<b>Khoản vay:</b> ${formatNumber(vay)} VNĐ<br><br><ul>`;
+
         for (let thang in heSo) {
-          let tien = vay * heSo[thang] + 12000;
-          html += `<li><span class="month">${thang} tháng</span><span>${formatNumber(
-            Math.round(tien)
-          )} VNĐ</span></li>`;
+          let tienThang = vay * heSo[thang] + 12000;
+          let tongTra = tienThang * thang;
+          let lai = tongTra - vay;
+
+          html += `
+          <li class="plan-item">
+  <div class="plan-box">
+    <div class="plan-row">
+      <span class="label">${thang} tháng</span>
+      <span class="value">${formatNumber(
+        Math.round(tienThang)
+      )} đ / tháng</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="plan-row total">
+      <span class="label">Tổng lãi</span>
+      <span class="value">${formatNumber(Math.round(lai))} đ</span>
+    </div>
+  </div>
+</li>
+          `;
         }
+
         html += "</ul>";
 
         const result = document.getElementById("result");
