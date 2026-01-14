@@ -394,6 +394,9 @@
           tinhTraGop();
         }
       }
+      function ceilToThousand(n) {
+        return Math.ceil(n / 1000) * 1000;
+      }
 
       function tinhTraGop() {
         const giaXe = parseNumber(giaXeInput.value);
@@ -434,7 +437,7 @@
     <div class="plan-row">
       <span class="label">${thang} tháng</span>
       <span class="value">${formatNumber(
-        Math.round(tienThang)
+        ceilToThousand(tienThang)
       )} đ / tháng</span>
     </div>
 
@@ -442,7 +445,7 @@
 
     <div class="plan-row total">
       <span class="label">Tổng lãi</span>
-      <span class="value">${formatNumber(Math.round(lai))} đ</span>
+      <span class="value">${formatNumber(ceilToThousand(lai))} đ</span>
     </div>
   </div>
 </li>
