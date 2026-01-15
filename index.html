@@ -428,7 +428,7 @@
 
         for (let thang in heSo) {
           let tienThang = vay * heSo[thang] + 12000;
-          let tongTra = tienThang * thang;
+          let tongTra = ceilToThousand(tienThang) * thang;
           let lai = tongTra - vay;
 
           html += `
